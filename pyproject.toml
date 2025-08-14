@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jotmd"
+version = "0.1.0"
+description = "CLI to jot date-scoped markdown notes into <YEAR>.md files."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+
+[project.scripts]
+jotmd = "jotmd:main"
