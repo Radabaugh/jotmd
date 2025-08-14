@@ -10,7 +10,7 @@ from typing import Iterable, List, Tuple
 
 # ------------------------ Helpers ------------------------
 
-DATE_HEADER_FMT = "%m%d%Y"  # e.g., 08142025
+DATE_HEADER_FMT = "%m/%d/%Y"  # e.g., 08/14/2025
 
 
 def parse_date_string(s: str) -> datetime:
@@ -68,7 +68,7 @@ def render_note_lines(message: str, tags: Iterable[str]) -> RenderedLines:
 
 # --------------------- File Operations ---------------------
 
-HEADER_RE = re.compile(r"^#\s+(\d{8})\s*$", re.MULTILINE)
+HEADER_RE = re.compile(r"^#\s+(\d{2}/\d{2}/\d{4})\s*$", re.MULTILINE)
 
 
 def ensure_year_file(notes_dir: Path, dt: datetime) -> Path:
@@ -131,39 +131,38 @@ def cmd_add(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="jotmd",
+        prog="jot",
         description="Append date-scoped markdown notes into <YEAR>.md files.",
     )
-    sub = p.add_subparsers(dest="cmd", required=True)
-
-    add = sub.add_parser("add", help="Add a note under the selected (or today's) date")
-    add.add_argument("message", help="The note message text")
-    add.add_argument(
+    p.add_argument("message", help="The note message text")
+    p.add_argument(
+        "-t",
         "--tag",
         action="append",
         help=(
             "Tag(s) to prefix or group the note by. Non-ticket tags (e.g., CHRIS) "
             "render as '* CHRIS: message'. Ticket-like tags (e.g., DT-1234) render as '\n* DT-1234\n    * message'. "
-            "Use multiple --tag flags for multiple tags."
+            "Use multiple -t/--tag flags for multiple tags."
         ),
     )
-    add.add_argument(
+    p.add_argument(
+        "-d",
         "--date",
         help="Backdate in YYYY-MM-DD, MM/DD/YYYY, or MMDDYYYY. Default: today.",
     )
-    add.add_argument(
+    p.add_argument(
+        "-n",
         "--notes-dir",
-        help="Directory where <YEAR>.md lives (default: current working directory).",
+        default="notes",
+        help="Directory where <YEAR>.md lives (default: ./notes).",
     )
-    add.set_defaults(func=cmd_add)
-
     return p
 
 
 def main(argv: List[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
-    args.func(args)
+    cmd_add(args)
 
 
 if __name__ == "__main__":
