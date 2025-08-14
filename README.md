@@ -2,7 +2,7 @@
 
 A tiny CLI to jot structured markdown notes by **date** into per-year files (`YYYY.md`).
 
-- Date headers: `# MMDDYYYY` (e.g., `# 08142025`)
+- Date headers: `# MMDDYYYY` (e.g., `# 08/14/2025`)
 - Default notes folder: `./notes/`
 - Non-ticket tags (e.g., `CHRIS`) render as `* CHRIS: message`
 - Ticket-like tags (e.g., `DT-1234`) render as:
@@ -33,28 +33,28 @@ pipx install .
 
 ```bash
 # add a freeform note under today's date
-jotmd add "Investigated Kafka consumer lag"
+jotmd "Investigated Kafka consumer lag"
 
 # tag a person
-jotmd add "Wants me to update a ticket" --tag CHRIS
+jotmd "Wants me to update a ticket" -t/--tag CHRIS
 
 # tag a ticket
-jotmd add "Learned about Apache Walrus" --tag DT-9999
+jotmd "Learned about Apache Walrus" -t/--tag DT-9999
 
 # multiple tags (one person line, one ticket block)
-jotmd add "Prepared retro notes" --tag CHRIS --tag DT-1234
+jotmd "Prepared retro notes" -t/--tag CHRIS -t/--tag DT-1234
 
 # backdate (YYYY-MM-DD, MM/DD/YYYY, or MMDDYYYY)
-jotmd add "Caught up on planning" --date 2025-08-13 --tag CHRIS
+jotmd "Caught up on planning" -d/--date 2025-08-13 -t/--tag CHRIS
 ```
 
 This writes to `./notes/2025.md` (or `./notes/2026.md` once the year rolls over).
-If the date section doesn’t exist yet, it’s created: `# 08132025`, etc.
+If the date section doesn’t exist yet, it’s created: `# 08/13/2025`, etc.
 
 ## CLI reference
 
 ```bash
-jotmd add "MESSAGE" [--tag TAG ...] [--date DATE] [--notes-dir PATH]
+jotmd "MESSAGE" [-t/--tag TAG ...] [-d/--date DATE] [-n/--notes-dir PATH]
 ```
 - `--tag TAG`
   - Non-ticket (e.g., `CHRIS`) → `* CHRIS: MESSAGE`
@@ -67,14 +67,14 @@ jotmd add "MESSAGE" [--tag TAG ...] [--date DATE] [--notes-dir PATH]
 **People tag**
 
 ```
-# 08142025
+# 08/14/2025
 * CHRIS: Wants me to set up a meeting with UCS Team for Thursday
 ```
 
 **Ticket tag**
 
 ```
-# 08142025
+# 08/14/2025
 * DT-YYYY
     * Learned about Apache Walrus
 ```
