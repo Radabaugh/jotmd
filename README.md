@@ -51,6 +51,29 @@ jotmd "Caught up on planning" -d/--date 2025-08-13 -t/--tag CHRIS
 This writes to `./notes/2025.md` (or `./notes/2026.md` once the year rolls over).
 If the date section doesn’t exist yet, it’s created: `# 08/13/2025`, etc.
 
+## Configure notes directory (optional, per-user via env var)
+
+By default, notes are written to `./notes/`. To send notes to a single folder from anywhere, set an environment variable.  
+**Precedence:** `--notes-dir` > `$JOT_NOTES_DIR` / `$JOTMD_NOTES_DIR` > `./notes`.
+
+### macOS / Linux (zsh or bash)
+```bash
+# pick a permanent location for your year files
+mkdir -p "$HOME/notes"
+
+# make it persistent (zsh)
+echo 'export JOTMD_NOTES_DIR="$HOME/notes"' >> ~/.zshrc
+# for bash use ~/.bashrc instead
+
+# reload your shell config
+source ~/.zshrc
+
+# verify
+printenv JOTMD_NOTES_DIR
+
+# test
+jotmd "Env var test" -t TEST
+
 ## CLI reference
 
 ```bash

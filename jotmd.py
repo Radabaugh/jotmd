@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Iterable, List
 
 # ------------------------ Helpers ------------------------
 
@@ -68,8 +69,6 @@ def render_note_lines(message: str, tags: Iterable[str]) -> RenderedLines:
 
 # --------------------- File Operations ---------------------
 
-HEADER_RE = re.compile(r"^#\s+(\d{2}/\d{2}/\d{4})\s*$", re.MULTILINE)
-
 
 def ensure_year_file(notes_dir: Path, dt: datetime) -> Path:
     notes_dir.mkdir(parents=True, exist_ok=True)
@@ -114,11 +113,14 @@ def cmd_add(args: argparse.Namespace) -> None:
     dt = parse_date_string(args.date) if args.date else datetime.now()
 
     default_notes_dir = Path.cwd() / "notes"
-    notes_dir = (
-        Path(args.notes_dir).expanduser().resolve()
-        if args.notes_dir
-        else default_notes_dir
-    )
+    env_dir = os.environ.get("JOT_NOTES_DIR") or os.environ.get("JOTMD_NOTES_DIR")
+
+    if args.notes_dir:
+        notes_dir = Path(args.notes_dir).expanduser().resolve()
+    elif env_dir:
+        notes_dir = Path(env_dir).expanduser().resolve()
+    else:
+        notes_dir = default_notes_dir
 
     year_file = ensure_year_file(notes_dir, dt)
     ensure_date_header(year_file, dt)
@@ -153,8 +155,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "-n",
         "--notes-dir",
-        default="notes",
-        help="Directory where <YEAR>.md lives (default: ./notes).",
+        default=None,
+        help=(
+            "Directory where <YEAR>.md lives. Precedence: --notes-dir > $JOT_NOTES_DIR/$JOTMD_NOTES_DIR > ./notes."
+        ),
     )
     return p
 
