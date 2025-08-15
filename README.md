@@ -73,6 +73,7 @@ printenv JOTMD_NOTES_DIR
 
 # test
 jotmd "Env var test" -t TEST
+```
 
 ## CLI reference
 
