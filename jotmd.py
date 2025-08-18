@@ -38,31 +38,50 @@ class RenderedLines:
 
 
 def render_note_lines(message: str, tags: Iterable[str]) -> RenderedLines:
-    """Render one or more markdown bullet lines for a note.
+    """Render markdown lines for a single note.
 
-    Rules:
-      - If no tags: produce a single bullet with the message.
-      - For non-ticket tags (e.g., names): produce "* NAME: message" (one per tag).
-      - For ticket-looking tags (ABC-123): produce "* ABC-123" then an indented
-        sub-bullet with the message.
+    New behavior:
+      - If there are tags, print **one** outer bullet with all tags chained
+        (ticket-like tags first), followed by a colon. Then one indented
+        sub-bullet containing the message.
+      - If there are no tags, print a single bullet with just the message.
+
+      Examples:
+        * DT-5770 KEVIN EXAMPLETAG:
+            * Deployed VS Interventions wb to Test for Kevin
+        * CHRIS EXAMPLETAG:
+            * Upset that I did not attend sprint planning
+        * Freeform message without tags
     """
-    tags = [t.strip() for t in tags if t and t.strip()]
+    # Normalize tags
+    tags_list = [t.strip() for t in tags if t and t.strip()]
+
     lines: List[str] = []
 
-    if not tags:
+    if not tags_list:
         lines.append(f"* {message}".rstrip())
         return RenderedLines(lines)
 
-    # Person/topic lines first (alphabetical for tidy grouping), then tickets
-    person_like = sorted([t for t in tags if not is_ticket(t)])
-    tickets = sorted([t for t in tags if is_ticket(t)])
+    # Split tickets vs others
+    tickets = [t for t in tags_list if is_ticket(t)]
+    others = [t for t in tags_list if not is_ticket(t)]
 
-    for t in person_like:
-        lines.append(f"* {t}: {message}".rstrip())
+    # Order: tickets first, then others; dedupe while preserving order
+    ordered = tickets + others
+    seen = set()
+    ordered_unique: List[str] = []
+    for t in ordered:
+        key = t.upper()
+        if key in seen:
+            continue
+        seen.add(key)
+        ordered_unique.append(t)
 
-    for t in tickets:
-        lines.append(f"* {t}")
-        lines.append(f"    * {message}".rstrip())
+    tag_str = " ".join(ordered_unique)
+
+    # One outer bullet with tags + colon, then an indented message bullet
+    lines.append(f"* {tag_str}:")
+    lines.append(f"    * {message}".rstrip())
 
     return RenderedLines(lines)
 
