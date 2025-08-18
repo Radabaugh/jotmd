@@ -54,7 +54,7 @@ def render_note_lines(message: str, tags: Iterable[str]) -> RenderedLines:
         * Freeform message without tags
     """
     # Normalize tags
-    tags_list = [t.strip() for t in tags if t and t.strip()]
+    tags_list = [t.strip().upper() for t in tags if t and t.strip()]
 
     lines: List[str] = []
 
